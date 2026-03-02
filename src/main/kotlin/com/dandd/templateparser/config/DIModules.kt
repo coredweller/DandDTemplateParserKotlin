@@ -1,5 +1,8 @@
 package com.dandd.templateparser.config
 
+import com.dandd.templateparser.feature.sheet.SheetRepository
+import com.dandd.templateparser.feature.sheet.SheetRepositoryImpl
+import com.dandd.templateparser.feature.sheet.SheetService
 import com.dandd.templateparser.feature.task.TaskRepository
 import com.dandd.templateparser.feature.task.TaskRepositoryImpl
 import com.dandd.templateparser.feature.task.TaskService
@@ -13,6 +16,8 @@ val appModule =
     module {
         single<TaskRepository> { TaskRepositoryImpl() }
         single { TaskService(get()) }
+        single<SheetRepository> { SheetRepositoryImpl() }
+        single { SheetService(get()) }
     }
 
 fun Application.configureDI() {
