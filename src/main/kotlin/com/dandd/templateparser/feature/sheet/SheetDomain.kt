@@ -20,3 +20,11 @@ data class CharacterSheetRender(
     val responseHtml: String,
     val createdAt: LocalDateTime,
 )
+
+data class SheetSummary(
+    val id: SheetId,
+    val sheetType: String,
+    val characterName: String,
+    val level: Int,
+    val createdAt: LocalDateTime,
+)

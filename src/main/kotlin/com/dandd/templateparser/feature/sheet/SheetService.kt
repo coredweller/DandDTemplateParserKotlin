@@ -11,6 +11,17 @@ import java.time.ZoneOffset
 class SheetService(private val repo: SheetRepository) {
     private val logger = LoggerFactory.getLogger(SheetService::class.java)
 
+    suspend fun findSummaries(type: String?, level: Int?): List<SheetSummary> {
+        logger.debug("Querying sheets type={} level={}", type, level)
+        return repo.findSummaries(type, level)
+    }
+
+    suspend fun findById(id: SheetId): Either<DomainError, String> {
+        logger.debug("Finding sheet by id={}", id.value)
+        val sheet = repo.findById(id) ?: return DomainError.NotFound(id.value).left()
+        return sheet.responseHtml.right()
+    }
+
     suspend fun renderGeneral(request: GeneralSheetRequest): Either<DomainError, String> {
         if (request.characterName.isBlank()) {
             return DomainError.ValidationFailed(listOf("CharacterName must not be blank")).left()

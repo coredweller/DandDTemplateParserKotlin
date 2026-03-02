@@ -4,6 +4,24 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
+data class SheetSummaryResponse(
+    val id: String,
+    val sheetType: String,
+    val characterName: String,
+    val level: Int,
+    val createdAt: String,
+)
+
+fun SheetSummary.toResponse() =
+    SheetSummaryResponse(
+        id = id.value.toString(),
+        sheetType = sheetType,
+        characterName = characterName,
+        level = level,
+        createdAt = createdAt.toString(),
+    )
+
+@Serializable
 data class AbilityScore(
     @SerialName("Score") val score: Int,
     @SerialName("Modifier") val modifier: String,

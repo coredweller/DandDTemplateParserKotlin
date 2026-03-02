@@ -3,6 +3,7 @@ package com.dandd.templateparser.feature.sheet
 import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.Table
+import org.jetbrains.exposed.sql.andWhere
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.javatime.datetime
 import org.jetbrains.exposed.sql.selectAll
@@ -12,6 +13,8 @@ interface SheetRepository {
     suspend fun save(sheet: CharacterSheetRender): CharacterSheetRender
 
     suspend fun findById(id: SheetId): CharacterSheetRender?
+
+    suspend fun findSummaries(type: String?, level: Int?): List<SheetSummary>
 }
 
 object CharacterSheetRendersTable : Table("character_sheet_renders") {
@@ -48,6 +51,32 @@ class SheetRepositoryImpl : SheetRepository {
                 .singleOrNull()
                 ?.toSheet()
         }
+
+    override suspend fun findSummaries(type: String?, level: Int?): List<SheetSummary> =
+        newSuspendedTransaction {
+            CharacterSheetRendersTable
+                .select(
+                    CharacterSheetRendersTable.id,
+                    CharacterSheetRendersTable.sheetType,
+                    CharacterSheetRendersTable.characterName,
+                    CharacterSheetRendersTable.level,
+                    CharacterSheetRendersTable.createdAt,
+                )
+                .apply {
+                    if (type != null) andWhere { CharacterSheetRendersTable.sheetType eq type }
+                    if (level != null) andWhere { CharacterSheetRendersTable.level eq level }
+                }
+                .map { it.toSummary() }
+        }
+
+    private fun ResultRow.toSummary() =
+        SheetSummary(
+            id = SheetId.from(this[CharacterSheetRendersTable.id]),
+            sheetType = this[CharacterSheetRendersTable.sheetType],
+            characterName = this[CharacterSheetRendersTable.characterName],
+            level = this[CharacterSheetRendersTable.level],
+            createdAt = this[CharacterSheetRendersTable.createdAt],
+        )
 
     private fun ResultRow.toSheet() =
         CharacterSheetRender(
